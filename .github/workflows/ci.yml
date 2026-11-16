@@ -12,13 +12,17 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   test:
     name: test (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -26,13 +30,13 @@ jobs:
         with:
           go-version-file: .tool-versions
       - name: go.mod tidy
-        run: make tidy
+        run: go mod tidy -diff
       - name: vet
-        run: make vet
+        run: go vet ./...
       - name: test (race)
-        run: make race
+        run: go test -race ./...
       - name: build
-        run: make build && ./bin/timeweft version
+        run: go build -o bin/ ./cmd/timeweft && ./bin/timeweft version
 
   lint:
     runs-on: ubuntu-latest
@@ -44,9 +48,11 @@ jobs:
       - uses: golangci/golangci-lint-action@v9
         with:
           version: v2.15.0
+      - name: shellcheck install.sh
+        run: shellcheck install.sh
 
-  release-check:
-    name: goreleaser check
+  release-snapshot:
+    name: goreleaser snapshot
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -59,3 +65,50 @@ jobs:
         with:
           version: "~> v2"
           args: release --snapshot --clean
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/checksums.txt
+            dist/metadata.json
+          retention-days: 3
+
+  # Installs the snapshot archives with the real install scripts, served
+  # over HTTP the way GitHub releases serve them.
+  install-script:
+    name: install script (${{ matrix.os }})
+    needs: release-snapshot
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+      - name: install.sh
+        if: runner.os != 'Windows'
+        run: |
+          python3 -m http.server 8765 --directory dist >/dev/null 2>&1 &
+          sleep 2
+          version=$(jq -r .version dist/metadata.json)
+          TIMEWEFT_DOWNLOAD_URL=http://localhost:8765 sh install.sh --version "$version" --dir "$RUNNER_TEMP/bin"
+          "$RUNNER_TEMP/bin/timeweft" version | grep -F "$version"
+      - name: install.ps1
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Start-Process python -ArgumentList '-m','http.server','8765','--directory','dist' -WindowStyle Hidden
+          Start-Sleep -Seconds 3
+          $version = (Get-Content dist/metadata.json | ConvertFrom-Json).version
+          $env:TIMEWEFT_VERSION = $version
+          $env:TIMEWEFT_DOWNLOAD_URL = 'http://localhost:8765'
+          $env:TIMEWEFT_INSTALL_DIR = Join-Path $env:RUNNER_TEMP 'bin'
+          ./install.ps1
+          $out = & (Join-Path $env:TIMEWEFT_INSTALL_DIR 'timeweft.exe') version
+          if ($out -notlike "*$version*") { throw "unexpected version output: $out" }

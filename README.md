@@ -14,9 +14,21 @@ In weaving, the **warp** threads run in parallel — your agents and branches. T
 
 ## Quick start
 
+Install (Linux, macOS — amd64, arm64, armv7):
+
 ```sh
-go install github.com/leue21/timeweft/cmd/timeweft@latest
-# or from a clone: make install   (→ ~/.local/bin; `make help` lists all targets)
+curl -fsSL https://raw.githubusercontent.com/leue21/timeweft/main/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/leue21/timeweft/main/install.ps1 | iex
+```
+
+The scripts verify the download against the release checksums. Prebuilt binaries are on the [releases page](https://github.com/leue21/timeweft/releases) once the first version is tagged; until then build from source with `go install github.com/leue21/timeweft/cmd/timeweft@latest` or `make install` in a clone.
+
+```sh
 timeweft setup claude        # adds hooks to ~/.claude/settings.json (backup kept)
 # ... work with Claude Code as usual ...
 timeweft report              # today; also: yesterday, week, lastweek, 2026-11-16, --json

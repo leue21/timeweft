@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/leue21/timeweft/internal/events"
@@ -32,12 +33,15 @@ var migrations = []string{
 type Store struct{ db *sql.DB }
 
 // DefaultPath is $TIMEWEFT_DB, else $XDG_DATA_HOME/timeweft/timeweft.db,
-// else ~/.local/share/timeweft/timeweft.db.
+// else ~/.local/share/timeweft/timeweft.db (%LOCALAPPDATA%\timeweft on Windows).
 func DefaultPath() (string, error) {
 	if p := os.Getenv("TIMEWEFT_DB"); p != "" {
 		return p, nil
 	}
 	base := os.Getenv("XDG_DATA_HOME")
+	if base == "" && runtime.GOOS == "windows" {
+		base = os.Getenv("LOCALAPPDATA")
+	}
 	if base == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {

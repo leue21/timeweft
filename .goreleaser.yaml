@@ -6,14 +6,23 @@ project_name: timeweft
 builds:
   - main: ./cmd/timeweft
     env: [CGO_ENABLED=0]
-    goos: [linux, darwin]
-    goarch: [amd64, arm64]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64, arm]
+    goarm: ["7"]
+    ignore:
+      - { goos: darwin, goarch: arm }
+      - { goos: windows, goarch: arm }
     flags: [-trimpath]
     ldflags: ["-s -w -X main.version={{ .Version }}"]
 
 archives:
   - formats: [tar.gz]
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    # timeweft_1.2.3_linux_amd64.tar.gz, ..._linux_armv7.tar.gz, ..._windows_arm64.zip
+    # install.sh / install.ps1 depend on this naming.
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
     files: [LICENSE, README.md]
 
 checksum:
