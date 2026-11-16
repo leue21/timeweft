@@ -13,7 +13,8 @@ In weaving, the **warp** threads run in parallel — your agents and worktrees. 
 ## How it works (planned)
 
 ```
- hooks (agent prompts/stops, git events) ──► timeweft (local CLI + SQLite)
+ agent hooks (prompts/stops) ──────────────► timeweft (local CLI + SQLite)
+ git history (log, reflog — read-only) ────►
                                                  │  event log → topics → time blocks
                                                  │
                                     MCP server ◄─┘
@@ -23,6 +24,7 @@ In weaving, the **warp** threads run in parallel — your agents and worktrees. 
 ```
 
 - **Local-first:** recording is a fast hook writing to SQLite. No cloud, no agent needed to record.
+- **Never touches your repos:** no git hooks, no config changes. Commits and branch switches are read afterwards from `git log` / `git reflog` — safe for company repos with their own hook setups.
 - **Two kinds of time:** *agent time* (how long an agent worked on a branch) vs. *attention time* (your prompting, reviewing, meetings) — only the latter goes on a timesheet.
 - **Topics, not branches:** `feat/PROJ-123-login` → `PROJ-123`, configurable.
 - **The agent is the integration layer:** timeweft exposes an MCP server; your agent pulls meetings from your calendar and pushes worklogs to Jira through the connectors it already has — no extra API tokens for locked-down corporate tools.
@@ -30,7 +32,8 @@ In weaving, the **warp** threads run in parallel — your agents and worktrees. 
 
 ## Roadmap
 
-- [ ] `timeweft` CLI + SQLite event log, Claude Code hooks, git hooks
+- [ ] `timeweft` CLI + SQLite event log, Claude Code hooks
+- [ ] Read-only git enrichment (commits via `git log`, branch switches via `git reflog`)
 - [ ] `timeweft report` (day / week / topic)
 - [ ] Branch → ticket mapping, ICS calendar import
 - [ ] MCP server (`timeline`, `import_events`, `draft_worklogs`, `mark_exported`)
