@@ -77,9 +77,7 @@ func NormalizeRemote(raw string) string {
 		host, path = u.Hostname(), u.Path
 	case isSCPLike(raw):
 		at := strings.Index(raw, "@")
-		rest := raw[at+1:]
-		colon := strings.Index(rest, ":")
-		host, path = rest[:colon], rest[colon+1:]
+		host, path, _ = strings.Cut(raw[at+1:], ":")
 	default:
 		return "local:" + strings.TrimSuffix(raw, ".git")
 	}

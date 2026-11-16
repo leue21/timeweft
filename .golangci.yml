@@ -15,6 +15,12 @@ linters:
         - (*text/tabwriter.Writer).Flush
         - (*database/sql.DB).Close
         - (*os.File).Close
+        - (*database/sql.Rows).Close
+        - (*github.com/leue21/timeweft/internal/store.Store).Close
+        - os.Remove # best-effort temp file cleanup
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
 
 formatters:
   enable:

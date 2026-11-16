@@ -84,9 +84,7 @@ func TestHookToReport(t *testing.T) {
 
 func TestHookNeverFails(t *testing.T) {
 	t.Setenv("TIMEWEFT_DB", filepath.Join(t.TempDir(), "tw.db"))
-	if code := runHook([]string{"claude"}, strings.NewReader("garbage")); code != 0 {
-		t.Fatalf("exit code %d", code)
-	}
+	runHook([]string{"claude"}, strings.NewReader("garbage"))
 	logPath := filepath.Join(filepath.Dir(os.Getenv("TIMEWEFT_DB")), "hook-errors.log")
 	if b, err := os.ReadFile(logPath); err != nil || !strings.Contains(string(b), "parse hook payload") {
 		t.Errorf("error not logged: %v %s", err, b)

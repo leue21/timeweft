@@ -43,7 +43,8 @@ func main() {
 	var err error
 	switch cmd {
 	case "hook":
-		os.Exit(runHook(args, os.Stdin))
+		runHook(args, os.Stdin)
+		return
 	case "report":
 		err = runReport(args, os.Stdout)
 	case "events":
@@ -65,17 +66,16 @@ func main() {
 }
 
 // runHook records one hook event. It must never disturb the agent: it prints
-// nothing to stdout (Claude Code would add it to the conversation) and always
-// exits 0. Failures go to hook-errors.log next to the database.
-func runHook(args []string, stdin io.Reader) int {
+// nothing to stdout (Claude Code would add it to the conversation) and the
+// process always exits 0. Failures go to hook-errors.log next to the database.
+func runHook(args []string, stdin io.Reader) {
 	if len(args) != 1 || args[0] != "claude" {
 		fmt.Fprintln(os.Stderr, "usage: timeweft hook claude")
-		return 0
+		return
 	}
 	if err := recordClaudeHook(stdin, time.Now()); err != nil {
 		logHookError(err)
 	}
-	return 0
 }
 
 func recordClaudeHook(stdin io.Reader, now time.Time) (err error) {
