@@ -2,7 +2,7 @@
 
 **Time tracking for parallel coding agents.** Run Claude Code, Codex & co. on several branches at once — timeweft records where *your* attention actually went, merges in meetings from your calendar, and drafts Jira timesheets for you to approve.
 
-> 🚧 **Work in progress** — design phase, nothing to install yet. Watch the repo to follow along.
+> 🚧 **Early stage** — recording and reports work for Claude Code; calendar, Jira and MCP are next.
 
 ## Why
 
@@ -10,7 +10,30 @@ With three agents running on three branches, an hour of wall-clock time is not t
 
 In weaving, the **warp** threads run in parallel — your agents and branches. The **weft** is the single thread that crosses them — your attention. timeweft records the weft.
 
-## How it works (planned)
+## Quick start
+
+```sh
+go install github.com/leue21/timeweft/cmd/timeweft@latest
+timeweft setup claude        # adds hooks to ~/.claude/settings.json (backup kept)
+# ... work with Claude Code as usual ...
+timeweft report              # today; also: yesterday, week, lastweek, 2026-11-16, --json
+```
+
+```
+timeweft — Mon 2026-11-16
+
+REPO           BRANCH               ATTENTION   AGENT   PROMPTS
+acme/api       feat/PROJ-123-login  1:45        3:10    23
+acme/web       fix/PROJ-130         0:50        1:05    9
+TOTAL                               2:35        4:15    32
+```
+
+- **Attention** — your time. It goes to the session you last prompted, until you prompt another one. After more than 15 min without a prompt (`--idle`), only 5 min (`--tail`) are credited. Never overlaps, so it can go on a timesheet.
+- **Agent** — how long agents were busy (prompt → stop). Parallel agents overlap; informational.
+
+`timeweft setup claude --print` shows the change without writing it, `--remove` takes the hooks out again. The hook stores session id, time, repo and branch — never your prompts. Data lives in `~/.local/share/timeweft/timeweft.db` (`$TIMEWEFT_DB`).
+
+## How it works
 
 ```
  agent hooks (prompts/stops) ──────────────► timeweft (local CLI + SQLite)
@@ -32,9 +55,9 @@ In weaving, the **warp** threads run in parallel — your agents and branches. T
 
 ## Roadmap
 
-- [ ] `timeweft` CLI + SQLite event log, Claude Code hooks
+- [x] `timeweft` CLI + SQLite event log, Claude Code hooks
 - [ ] Read-only git enrichment (commits via `git log`, branch switches via `git reflog`)
-- [ ] `timeweft report` (day / week / topic)
+- [x] `timeweft report` (day / week, text and JSON)
 - [ ] Branch → ticket mapping
 - [ ] Calendar import: agent reads Outlook on the web via the browser → `import_events` (ICS optional)
 - [ ] MCP server (`timeline`, `import_events`, `draft_worklogs`, `mark_exported`)
