@@ -1,5 +1,7 @@
 # timeweft
 
+[![CI](https://github.com/leue21/timeweft/actions/workflows/ci.yml/badge.svg)](https://github.com/leue21/timeweft/actions/workflows/ci.yml)
+
 **Time tracking for parallel coding agents.** Run Claude Code, Codex & co. on several branches at once — timeweft records where *your* attention actually went, merges in meetings from your calendar, and drafts Jira timesheets for you to approve.
 
 > 🚧 **Early stage** — recording and reports work for Claude Code; calendar, Jira and MCP are next.
@@ -14,6 +16,7 @@ In weaving, the **warp** threads run in parallel — your agents and branches. T
 
 ```sh
 go install github.com/leue21/timeweft/cmd/timeweft@latest
+# or from a clone: make install   (→ ~/.local/bin; `make help` lists all targets)
 timeweft setup claude        # adds hooks to ~/.claude/settings.json (backup kept)
 # ... work with Claude Code as usual ...
 timeweft report              # today; also: yesterday, week, lastweek, 2026-11-16, --json
