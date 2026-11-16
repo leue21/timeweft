@@ -1,14 +1,14 @@
 # timeweft
 
-**Time tracking for parallel coding agents.** Run Claude Code, Codex & co. on several git worktrees at once — timeweft records where *your* attention actually went, merges in meetings from your calendar, and drafts Jira timesheets for you to approve.
+**Time tracking for parallel coding agents.** Run Claude Code, Codex & co. on several branches at once — timeweft records where *your* attention actually went, merges in meetings from your calendar, and drafts Jira timesheets for you to approve.
 
 > 🚧 **Work in progress** — design phase, nothing to install yet. Watch the repo to follow along.
 
 ## Why
 
-With three agents running on three worktrees, an hour of wall-clock time is not three hours of work. Existing trackers measure editor activity or single sessions; none of them models *you* switching between parallel agents, or turns that into a timesheet.
+With three agents running on three branches, an hour of wall-clock time is not three hours of work. Existing trackers measure editor activity or single sessions; none of them models *you* switching between parallel agents, or turns that into a timesheet.
 
-In weaving, the **warp** threads run in parallel — your agents and worktrees. The **weft** is the single thread that crosses them — your attention. timeweft records the weft.
+In weaving, the **warp** threads run in parallel — your agents and branches. The **weft** is the single thread that crosses them — your attention. timeweft records the weft.
 
 ## How it works (planned)
 
@@ -26,7 +26,7 @@ In weaving, the **warp** threads run in parallel — your agents and worktrees. 
 - **Local-first:** recording is a fast hook writing to SQLite. No cloud, no agent needed to record.
 - **Never touches your repos:** no git hooks, no config changes. Commits and branch switches are read afterwards from `git log` / `git reflog` — safe for company repos with their own hook setups.
 - **Two kinds of time:** *agent time* (how long an agent worked on a branch) vs. *attention time* (your prompting, reviewing, meetings) — only the latter goes on a timesheet.
-- **Topics, not branches:** `feat/PROJ-123-login` → `PROJ-123`, configurable.
+- **Branches are the unit:** time is counted per repo + branch, regardless of how it's checked out (worktree, clone, plain checkout). Branches roll up into topics: `feat/PROJ-123-login` → `PROJ-123`, configurable.
 - **The agent is the integration layer:** timeweft exposes an MCP server; your agent pulls meetings from your calendar and pushes worklogs to Jira through the connectors it already has — no extra API tokens for locked-down corporate tools.
 - **Deterministic numbers, human approval:** the tracker does the math; the agent only moves data and writes descriptions. Nothing is posted without your OK, and nothing is posted twice.
 
