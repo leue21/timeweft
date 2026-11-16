@@ -35,7 +35,8 @@ In weaving, the **warp** threads run in parallel — your agents and branches. T
 - [ ] `timeweft` CLI + SQLite event log, Claude Code hooks
 - [ ] Read-only git enrichment (commits via `git log`, branch switches via `git reflog`)
 - [ ] `timeweft report` (day / week / topic)
-- [ ] Branch → ticket mapping, ICS calendar import
+- [ ] Branch → ticket mapping
+- [ ] Calendar import: agent reads Outlook on the web via the browser → `import_events` (ICS optional)
 - [ ] MCP server (`timeline`, `import_events`, `draft_worklogs`, `mark_exported`)
 - [ ] Claude Code plugin with `/timesheet` skill
 - [ ] Collectors for Codex and other agents
