@@ -1,0 +1,21 @@
+# Binaries
+/timeweft
+/tw
+/dist/
+*.exe
+
+# Go
+*.test
+*.out
+/vendor/
+
+# Local data
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
